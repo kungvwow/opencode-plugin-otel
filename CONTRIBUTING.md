@@ -62,11 +62,57 @@ docker run --rm -p 4317:4317 \
 
 Then set `OPENCODE_ENABLE_TELEMETRY=1` and start opencode. The collector will print received spans and metrics to stdout.
 
+## Commit messages
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). All commits must be structured as:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+| Type | When to use |
+|------|-------------|
+| `feat` | A new feature (triggers a minor version bump) |
+| `fix` | A bug fix (triggers a patch version bump) |
+| `perf` | A performance improvement |
+| `refactor` | Code change that is neither a fix nor a feature |
+| `test` | Adding or updating tests |
+| `docs` | Documentation only changes |
+| `ci` | CI/CD configuration changes |
+| `chore` | Maintenance tasks (dependency updates, etc.) |
+| `build` | Changes to the build system |
+
+### Breaking changes
+
+Append `!` after the type or add a `BREAKING CHANGE:` footer:
+
+```
+feat!: drop support for OTLP HTTP
+
+BREAKING CHANGE: only OTLP/gRPC is supported going forward
+```
+
+### Examples
+
+```
+feat(handlers): add support for file.edited event
+fix(probe): handle malformed endpoint URL without throwing
+docs: update Datadog configuration example
+chore(deps): bump @opentelemetry/api to 1.10.0
+```
+
 ## Submitting changes
 
-1. Fork the repo and create a branch: `git checkout -b my-feature`
-2. Make your changes and ensure `bun run typecheck` passes
-3. Open a pull request with a clear description of what changed and why
+1. Fork the repo and create a branch from `main`: `git checkout -b feat/my-feature`
+2. Make your changes and ensure `bun run typecheck` and `bun test` pass
+3. Commit using Conventional Commits format
+4. Open a pull request — the title should also follow Conventional Commits format
 
 ## Releasing
 
@@ -76,3 +122,9 @@ Releases are handled via GitHub Actions. See [the release workflow](.github/work
 git tag v1.2.3
 git push origin v1.2.3
 ```
+
+The version bump should follow [SemVer](https://semver.org) based on the commits since the last release:
+
+- `fix` commits → patch (`1.0.x`)
+- `feat` commits → minor (`1.x.0`)
+- `BREAKING CHANGE` commits → major (`x.0.0`)

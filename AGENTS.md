@@ -49,3 +49,23 @@ src/
 - **Single source of truth for tokens/cost** — token and cost counters are incremented only in `message.updated` (`src/handlers/message.ts`), never in `step-finish`.
 - **Shutdown** — OTel providers are flushed via `SIGTERM`/`SIGINT`/`beforeExit`. Do not use `process.on("exit")` for async flushing.
 - **`OPENCODE_ENABLE_TELEMETRY`** — all OTel instrumentation is gated on this env var. The plugin always loads regardless; only telemetry is disabled when unset.
+
+## Commit message format
+
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/):
+
+```
+<type>[optional scope]: <description>
+```
+
+Common types: `feat`, `fix`, `perf`, `refactor`, `test`, `docs`, `ci`, `chore`, `build`.
+
+Use `!` or a `BREAKING CHANGE:` footer for breaking changes.
+
+Examples:
+
+```
+feat(handlers): add support for file.edited event
+fix(probe): handle malformed endpoint URL without throwing
+chore(deps): bump @opentelemetry/api to 1.10.0
+```
