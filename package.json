@@ -1,0 +1,30 @@
+{
+  "name": "opencode-plugin-otel",
+  "module": "src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target bun --format esm && tsc --emitDeclarationOnly",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "bun run clean && bun run build",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.2.23",
+    "@opencode-ai/sdk": "^1.2.23",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-logs-otlp-grpc": "^0.213.0",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.213.0",
+    "@opentelemetry/resources": "^2.6.0",
+    "@opentelemetry/sdk-logs": "^0.213.0",
+    "@opentelemetry/sdk-metrics": "^2.6.0",
+    "@opentelemetry/sdk-node": "^0.213.0",
+    "@opentelemetry/semantic-conventions": "^1.40.0",
+    "typescript": "^5.9.3"
+  }
+}
