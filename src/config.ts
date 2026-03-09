@@ -1,0 +1,30 @@
+import { LEVELS, type Level } from "./types.ts"
+
+export type PluginConfig = {
+  enabled: boolean
+  endpoint: string
+  metricsInterval: number
+  logsInterval: number
+}
+
+export function parseEnvInt(key: string, fallback: number): number {
+  const raw = process.env[key]
+  if (!raw) return fallback
+  const n = parseInt(raw, 10)
+  return Number.isFinite(n) && n > 0 ? n : fallback
+}
+
+export function loadConfig(): PluginConfig {
+  return {
+    enabled: !!process.env["OPENCODE_ENABLE_TELEMETRY"],
+    endpoint: process.env["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317",
+    metricsInterval: parseEnvInt("OTEL_METRIC_EXPORT_INTERVAL", 60000),
+    logsInterval: parseEnvInt("OTEL_LOGS_EXPORT_INTERVAL", 5000),
+  }
+}
+
+export function resolveLogLevel(logLevel: string, current: Level): Level {
+  const candidate = logLevel.toLowerCase()
+  if (candidate in LEVELS) return candidate as Level
+  return current
+}
