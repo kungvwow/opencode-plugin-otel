@@ -43,6 +43,7 @@ export const OtelPlugin: Plugin = async ({ project, client }) => {
     endpoint: config.endpoint,
     metricsInterval: config.metricsInterval,
     logsInterval: config.logsInterval,
+    metricPrefix: config.metricPrefix,
   })
 
   const probe = await probeEndpoint(config.endpoint)
@@ -63,7 +64,7 @@ export const OtelPlugin: Plugin = async ({ project, client }) => {
   )
   await log("info", "OTel SDK initialized")
 
-  const instruments = createInstruments()
+  const instruments = createInstruments(config.metricPrefix)
   const logger = logs.getLogger("com.opencode")
   const pendingToolSpans = new Map()
   const pendingPermissions = new Map()

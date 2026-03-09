@@ -82,30 +82,30 @@ export function setupOtel(
   return { meterProvider, loggerProvider }
 }
 
-export function createInstruments(): Instruments {
+export function createInstruments(prefix: string): Instruments {
   const meter = metrics.getMeter("com.opencode")
   return {
-    sessionCounter: meter.createCounter("opencode.session.count", {
+    sessionCounter: meter.createCounter(`${prefix}session.count`, {
       unit: "count",
       description: "Count of opencode sessions started",
     }),
-    tokenCounter: meter.createCounter("opencode.token.usage", {
+    tokenCounter: meter.createCounter(`${prefix}token.usage`, {
       unit: "tokens",
       description: "Number of tokens used",
     }),
-    costCounter: meter.createCounter("opencode.cost.usage", {
+    costCounter: meter.createCounter(`${prefix}cost.usage`, {
       unit: "USD",
       description: "Cost of the opencode session in USD",
     }),
-    linesCounter: meter.createCounter("opencode.lines_of_code.count", {
+    linesCounter: meter.createCounter(`${prefix}lines_of_code.count`, {
       unit: "count",
       description: "Count of lines of code added or removed",
     }),
-    commitCounter: meter.createCounter("opencode.commit.count", {
+    commitCounter: meter.createCounter(`${prefix}commit.count`, {
       unit: "count",
       description: "Number of git commits created",
     }),
-    toolDurationHistogram: meter.createHistogram("opencode.tool.duration", {
+    toolDurationHistogram: meter.createHistogram(`${prefix}tool.duration`, {
       unit: "ms",
       description: "Duration of tool executions in milliseconds",
     }),

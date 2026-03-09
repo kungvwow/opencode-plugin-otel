@@ -5,6 +5,7 @@ export type PluginConfig = {
   endpoint: string
   metricsInterval: number
   logsInterval: number
+  metricPrefix: string
 }
 
 export function parseEnvInt(key: string, fallback: number): number {
@@ -17,9 +18,10 @@ export function parseEnvInt(key: string, fallback: number): number {
 export function loadConfig(): PluginConfig {
   return {
     enabled: !!process.env["OPENCODE_ENABLE_TELEMETRY"],
-    endpoint: process.env["OTEL_EXPORTER_OTLP_ENDPOINT"] ?? "http://localhost:4317",
-    metricsInterval: parseEnvInt("OTEL_METRIC_EXPORT_INTERVAL", 60000),
-    logsInterval: parseEnvInt("OTEL_LOGS_EXPORT_INTERVAL", 5000),
+    endpoint: process.env["OPENCODE_OTLP_ENDPOINT"] ?? "http://localhost:4317",
+    metricsInterval: parseEnvInt("OPENCODE_OTLP_METRICS_INTERVAL", 60000),
+    logsInterval: parseEnvInt("OPENCODE_OTLP_LOGS_INTERVAL", 5000),
+    metricPrefix: process.env["OPENCODE_METRIC_PREFIX"] ?? "opencode.",
   }
 }
 

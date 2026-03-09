@@ -56,17 +56,16 @@ All configuration is via environment variables. Set them in your shell profile (
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OPENCODE_ENABLE_TELEMETRY` | _(unset)_ | Set to any non-empty value to enable the plugin |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | gRPC OTLP collector endpoint |
-| `OTEL_EXPORTER_OTLP_HEADERS` | _(none)_ | Comma-separated `key=value` auth headers, e.g. `api-key=abc123` |
-| `OTEL_METRIC_EXPORT_INTERVAL` | `60000` | Metrics export interval in milliseconds |
-| `OTEL_LOGS_EXPORT_INTERVAL` | `5000` | Logs export interval in milliseconds |
-| `OTEL_RESOURCE_ATTRIBUTES` | _(none)_ | Extra resource attributes, e.g. `team=platform,env=prod` |
+| `OPENCODE_OTLP_ENDPOINT` | `http://localhost:4317` | gRPC OTLP collector endpoint |
+| `OPENCODE_OTLP_METRICS_INTERVAL` | `60000` | Metrics export interval in milliseconds |
+| `OPENCODE_OTLP_LOGS_INTERVAL` | `5000` | Logs export interval in milliseconds |
+| `OPENCODE_METRIC_PREFIX` | `opencode.` | Prefix for all metric names (e.g. set to `claude_code.` for Claude Code dashboard compatibility) |
 
 ### Quick start
 
 ```bash
 export OPENCODE_ENABLE_TELEMETRY=1
-export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+export OPENCODE_OTLP_ENDPOINT=http://localhost:4317
 opencode
 ```
 
@@ -74,17 +73,20 @@ opencode
 
 ```bash
 export OPENCODE_ENABLE_TELEMETRY=1
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://api.datadoghq.com
-export OTEL_EXPORTER_OTLP_HEADERS=dd-api-key=YOUR_API_KEY
-export OTEL_RESOURCE_ATTRIBUTES=team=platform,env=prod
+export OPENCODE_OTLP_ENDPOINT=https://api.datadoghq.com
 ```
 
 ### Honeycomb example
 
 ```bash
 export OPENCODE_ENABLE_TELEMETRY=1
-export OTEL_EXPORTER_OTLP_ENDPOINT=https://api.honeycomb.io
-export OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=YOUR_API_KEY
+export OPENCODE_OTLP_ENDPOINT=https://api.honeycomb.io
+```
+
+### Claude Code dashboard compatibility
+
+```bash
+export OPENCODE_METRIC_PREFIX=claude_code.
 ```
 
 ## Local development

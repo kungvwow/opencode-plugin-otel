@@ -48,7 +48,9 @@ src/
 - **`setBoundedMap`** — always use this instead of `Map.set` for `pendingToolSpans` and `pendingPermissions` to prevent unbounded growth.
 - **Single source of truth for tokens/cost** — token and cost counters are incremented only in `message.updated` (`src/handlers/message.ts`), never in `step-finish`.
 - **Shutdown** — OTel providers are flushed via `SIGTERM`/`SIGINT`/`beforeExit`. Do not use `process.on("exit")` for async flushing.
+- **All env vars are `OPENCODE_` prefixed** — `OPENCODE_ENABLE_TELEMETRY`, `OPENCODE_OTLP_ENDPOINT`, `OPENCODE_OTLP_METRICS_INTERVAL`, `OPENCODE_OTLP_LOGS_INTERVAL`, `OPENCODE_METRIC_PREFIX`. Never use bare `OTEL_*` names for plugin config.
 - **`OPENCODE_ENABLE_TELEMETRY`** — all OTel instrumentation is gated on this env var. The plugin always loads regardless; only telemetry is disabled when unset.
+- **`OPENCODE_METRIC_PREFIX`** — defaults to `opencode.`; set to `claude_code.` for Claude Code dashboard compatibility.
 
 ## Commit message format
 
