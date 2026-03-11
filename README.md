@@ -2,6 +2,17 @@
 
 An [opencode](https://opencode.ai) plugin that exports telemetry via OpenTelemetry (OTLP/gRPC), mirroring the same signals as [Claude Code's monitoring](https://code.claude.com/docs/en/monitoring-usage).
 
+- [What it instruments](#what-it-instruments)
+  - [Metrics](#metrics)
+  - [Log events](#log-events)
+- [Installation](#installation)
+- [Configuration](#configuration)
+  - [Quick start](#quick-start)
+  - [Datadog example](#datadog-example)
+  - [Honeycomb example](#honeycomb-example)
+  - [Claude Code dashboard compatibility](#claude-code-dashboard-compatibility)
+- [Local development](#local-development)
+
 ## What it instruments
 
 ### Metrics
