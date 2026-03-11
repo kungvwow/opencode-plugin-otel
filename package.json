@@ -4,6 +4,10 @@
   "module": "src/index.ts",
   "main": "src/index.ts",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DEVtheOPS/opencode-plugin-otel.git"
+  },
   "files": [
     "src/"
   ],
