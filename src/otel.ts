@@ -9,20 +9,6 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions"
 import { ATTR_HOST_ARCH } from "@opentelemetry/semantic-conventions/incubating"
 import type { Instruments } from "./types.ts"
 
-export function parseHeaders(raw: string | undefined): Record<string, string> {
-  if (!raw) return {}
-  const result: Record<string, string> = {}
-  for (const pair of raw.split(",")) {
-    const idx = pair.indexOf("=")
-    if (idx > 0) {
-      const key = pair.slice(0, idx).trim()
-      const val = pair.slice(idx + 1).trim()
-      if (key) result[key] = val
-    }
-  }
-  return result
-}
-
 export function buildResource(version: string) {
   const attrs: Record<string, string> = {
     [ATTR_SERVICE_NAME]: "opencode",
@@ -55,14 +41,13 @@ export function setupOtel(
   logsInterval: number,
   version: string,
 ): OtelProviders {
-  const headers = parseHeaders(process.env["OTEL_EXPORTER_OTLP_HEADERS"])
   const resource = buildResource(version)
 
   const meterProvider = new MeterProvider({
     resource,
     readers: [
       new PeriodicExportingMetricReader({
-        exporter: new OTLPMetricExporter({ url: endpoint, headers }),
+        exporter: new OTLPMetricExporter({ url: endpoint }),
         exportIntervalMillis: metricsInterval,
       }),
     ],
@@ -72,7 +57,7 @@ export function setupOtel(
   const loggerProvider = new LoggerProvider({
     resource,
     processors: [
-      new BatchLogRecordProcessor(new OTLPLogExporter({ url: endpoint, headers }), {
+      new BatchLogRecordProcessor(new OTLPLogExporter({ url: endpoint }), {
         scheduledDelayMillis: logsInterval,
       }),
     ],

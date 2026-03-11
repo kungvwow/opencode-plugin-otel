@@ -45,7 +45,7 @@ Or point directly at a local checkout for development:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["/path/to/opencode-plugin-otel/index.ts"]
+  "plugin": ["/path/to/opencode-plugin-otel/src/index.ts"]
 }
 ```
 
@@ -60,6 +60,8 @@ All configuration is via environment variables. Set them in your shell profile (
 | `OPENCODE_OTLP_METRICS_INTERVAL` | `60000` | Metrics export interval in milliseconds |
 | `OPENCODE_OTLP_LOGS_INTERVAL` | `5000` | Logs export interval in milliseconds |
 | `OPENCODE_METRIC_PREFIX` | `opencode.` | Prefix for all metric names (e.g. set to `claude_code.` for Claude Code dashboard compatibility) |
+| `OPENCODE_OTLP_HEADERS` | _(unset)_ | Comma-separated `key=value` headers added to all OTLP exports (e.g. for auth tokens) |
+| `OPENCODE_RESOURCE_ATTRIBUTES` | _(unset)_ | Comma-separated `key=value` pairs merged into the OTel resource |
 
 ### Quick start
 
