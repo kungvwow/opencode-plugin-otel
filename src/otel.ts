@@ -9,6 +9,11 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions"
 import { ATTR_HOST_ARCH } from "@opentelemetry/semantic-conventions/incubating"
 import type { Instruments } from "./types.ts"
 
+/**
+ * Builds an OTel `Resource` seeded with `service.name`, `app.version`, `os.type`, and
+ * `host.arch`. Additional attributes from `OTEL_RESOURCE_ATTRIBUTES` are merged in and
+ * may override the defaults.
+ */
 export function buildResource(version: string) {
   const attrs: Record<string, string> = {
     [ATTR_SERVICE_NAME]: "opencode",
@@ -30,11 +35,16 @@ export function buildResource(version: string) {
   return resourceFromAttributes(attrs)
 }
 
+/** Handles returned by `setupOtel`, used for graceful shutdown. */
 export type OtelProviders = {
   meterProvider: MeterProvider
   loggerProvider: LoggerProvider
 }
 
+/**
+ * Initialises the OTel SDK — creates a `MeterProvider` and `LoggerProvider` backed by
+ * OTLP/gRPC exporters pointed at `endpoint`, and registers them as the global providers.
+ */
 export function setupOtel(
   endpoint: string,
   metricsInterval: number,
@@ -67,6 +77,7 @@ export function setupOtel(
   return { meterProvider, loggerProvider }
 }
 
+/** Creates all metric instruments using the global `MeterProvider`. Metric names are prefixed with `prefix`. */
 export function createInstruments(prefix: string): Instruments {
   const meter = metrics.getMeter("com.opencode")
   return {
