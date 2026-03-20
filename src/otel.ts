@@ -19,14 +19,8 @@ export type DebugLogFn = (level: "debug" | "info" | "warn" | "error", message: s
 function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, debugLog: DebugLogFn) {
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (logs: SdkLogRecord[], resultCallback: (result: { code: number; error?: Error }) => void) => {
-    console.log(`[otel] log export: sending ${logs.length} log(s)`)
-    debugLog("info", `OTLP log export: sending ${logs.length} log(s)`)
     originalExport(logs, (result) => {
-      if (result.code === 0) {
-        console.log(`[otel] log export: success (${logs.length} logs)`)
-        debugLog("info", `OTLP log export: success (${logs.length} logs)`)
-      } else {
-        console.error(`[otel] log export: failed`, result.code, result.error?.message)
+      if (result.code !== 0) {
         debugLog("error", `OTLP log export: failed`, { code: result.code, error: result.error?.message })
       }
       resultCallback(result)
@@ -38,15 +32,8 @@ function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, de
 function wrapMetricExporter(exporter: OTLPMetricExporterHttp | OTLPMetricExporterGrpc, debugLog: DebugLogFn) {
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (metrics: ResourceMetrics, resultCallback: (result: { code: number; error?: Error }) => void) => {
-    const scopeCount = Object.keys(metrics.scopeMetrics ?? {}).length
-    console.log(`[otel] metric export: sending metrics (${scopeCount} scopes)`)
-    debugLog("info", `OTLP metric export: sending metrics (${scopeCount} scopes)`)
     originalExport(metrics, (result) => {
-      if (result.code === 0) {
-        console.log(`[otel] metric export: success`)
-        debugLog("info", `OTLP metric export: success`)
-      } else {
-        console.error(`[otel] metric export: failed`, result.code, result.error?.message)
+      if (result.code !== 0) {
         debugLog("error", `OTLP metric export: failed`, { code: result.code, error: result.error?.message })
       }
       resultCallback(result)
@@ -104,12 +91,15 @@ export function setupOtel(
   const MetricExporter = protocol === "http" ? OTLPMetricExporterHttp : OTLPMetricExporterGrpc
   const LogExporter = protocol === "http" ? OTLPLogExporterHttp : OTLPLogExporterGrpc
 
-  const metricsUrl = endpoint + "/v1/metrics"
-  const logsUrl = endpoint + "/v1/logs"
-  console.log(`[otel] creating exporters - metrics: ${metricsUrl}, logs: ${logsUrl}`)
+  const exporterConfig = protocol === "http"
+    ? {
+        url: endpoint,
+        headers: { "Content-Type": "application/json" },
+      }
+    : { url: endpoint }
 
-  const metricExporter = wrapMetricExporter(new MetricExporter({ url: metricsUrl }), debugLog)
-  const logExporter = wrapLogExporter(new LogExporter({ url: logsUrl }), debugLog)
+  const metricExporter = wrapMetricExporter(new MetricExporter(exporterConfig), debugLog)
+  const logExporter = wrapLogExporter(new LogExporter(exporterConfig), debugLog)
 
   const meterProvider = new MeterProvider({
     resource,
