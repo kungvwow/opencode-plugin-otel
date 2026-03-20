@@ -1,12 +1,12 @@
 # opencode-plugin-otel
 
-[![npm version](https://img.shields.io/npm/v/@devtheops/opencode-plugin-otel.svg)](https://www.npmjs.com/package/@devtheops/opencode-plugin-otel)
-[![npm downloads](https://img.shields.io/npm/dm/@devtheops/opencode-plugin-otel.svg)](https://www.npmjs.com/package/@devtheops/opencode-plugin-otel)
-[![GitHub stars](https://img.shields.io/github/stars/DEVtheOPS/opencode-plugin-otel.svg)](https://github.com/DEVtheOPS/opencode-plugin-otel/stargazers)
-[![Build status](https://img.shields.io/github/actions/workflow/status/DEVtheOPS/opencode-plugin-otel/release-please.yml?branch=main)](https://github.com/DEVtheOPS/opencode-plugin-otel/actions/workflows/release-please.yml)
-[![License](https://img.shields.io/npm/l/@devtheops/opencode-plugin-otel.svg)](https://github.com/DEVtheOPS/opencode-plugin-otel/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@kungvwow/opencode-plugin-otel.svg)](https://www.npmjs.com/package/@kungvwow/opencode-plugin-otel)
+[![npm downloads](https://img.shields.io/npm/dm/@kungvwow/opencode-plugin-otel.svg)](https://www.npmjs.com/package/@kungvwow/opencode-plugin-otel)
+[![GitHub stars](https://img.shields.io/github/stars/kungvwow/opencode-plugin-otel.svg)](https://github.com/kungvwow/opencode-plugin-otel/stargazers)
+[![Build status](https://img.shields.io/github/actions/workflow/status/kungvwow/opencode-plugin-otel/release-please.yml?branch=main)](https://github.com/kungvwow/opencode-plugin-otel/actions/workflows/release-please.yml)
+[![License](https://img.shields.io/npm/l/@kungvwow/opencode-plugin-otel.svg)](https://github.com/kungvwow/opencode-plugin-otel/blob/main/LICENSE)
 
-An [opencode](https://opencode.ai) plugin that exports telemetry via OpenTelemetry (OTLP/gRPC), mirroring the same signals as [Claude Code's monitoring](https://code.claude.com/docs/en/monitoring-usage).
+An [opencode](https://opencode.ai) plugin that exports telemetry via OpenTelemetry (OTLP/gRPC or HTTP/JSON), mirroring the same signals as [Claude Code's monitoring](https://code.claude.com/docs/en/monitoring-usage).
 
 - [What it instruments](#what-it-instruments)
   - [Metrics](#metrics)
@@ -57,16 +57,37 @@ An [opencode](https://opencode.ai) plugin that exports telemetry via OpenTelemet
 
 ## Installation
 
-Add the plugin to your opencode config at `~/.config/opencode/opencode.json`:
+### From npm
+
+```bash
+bun add -g @kungvwow/opencode-plugin-otel
+```
+
+Then add to your opencode config at `~/.config/opencode/opencode.json`:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["@devtheops/opencode-plugin-otel"]
+  "plugin": ["@kungvwow/opencode-plugin-otel"]
 }
 ```
 
-Or point directly at a local checkout for development:
+### From Git (no npm publish required)
+
+```bash
+bun add -g git@github.com:kungvwow/opencode-plugin-otel.git
+```
+
+Then add to your opencode config at `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@kungvwow/opencode-plugin-otel"]
+}
+```
+
+### Local development
 
 ```json
 {
@@ -82,7 +103,8 @@ All configuration is via environment variables. Set them in your shell profile (
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OPENCODE_ENABLE_TELEMETRY` | _(unset)_ | Set to any non-empty value to enable the plugin |
-| `OPENCODE_OTLP_ENDPOINT` | `http://localhost:4317` | gRPC OTLP collector endpoint |
+| `OPENCODE_OTLP_ENDPOINT` | `http://localhost:4317` (gRPC) / `http://localhost:4318` (HTTP) | OTLP collector endpoint |
+| `OPENCODE_OTLP_PROTOCOL` | `grpc` | Protocol to use: `grpc` or `http` (HTTP/JSON) |
 | `OPENCODE_OTLP_METRICS_INTERVAL` | `60000` | Metrics export interval in milliseconds |
 | `OPENCODE_OTLP_LOGS_INTERVAL` | `5000` | Logs export interval in milliseconds |
 | `OPENCODE_METRIC_PREFIX` | `opencode.` | Prefix for all metric names (e.g. set to `claude_code.` for Claude Code dashboard compatibility) |
@@ -92,9 +114,20 @@ All configuration is via environment variables. Set them in your shell profile (
 
 ### Quick start
 
+#### gRPC (default)
+
 ```bash
 export OPENCODE_ENABLE_TELEMETRY=1
 export OPENCODE_OTLP_ENDPOINT=http://localhost:4317
+opencode
+```
+
+#### HTTP/JSON
+
+```bash
+export OPENCODE_ENABLE_TELEMETRY=1
+export OPENCODE_OTLP_PROTOCOL=http
+export OPENCODE_OTLP_ENDPOINT=http://localhost:4318
 opencode
 ```
 

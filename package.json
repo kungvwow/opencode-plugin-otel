@@ -1,6 +1,6 @@
 {
-  "name": "@devtheops/opencode-plugin-otel",
-  "version": "0.4.1",
+  "name": "@kungvwow/opencode-plugin-otel",
+  "version": "0.5.0",
   "description": "OpenTelemetry telemetry plugin for opencode CLI",
   "keywords": [
     "opentelemetry",
@@ -11,14 +11,14 @@
     "observability"
   ],
   "license": "MPL-2.0",
-  "author": "DEVtheOPS",
-  "homepage": "https://github.com/DEVtheOPS/opencode-plugin-otel#readme",
+  "author": "kungvwow",
+  "homepage": "https://github.com/kungvwow/opencode-plugin-otel#readme",
   "bugs": {
-    "url": "https://github.com/DEVtheOPS/opencode-plugin-otel/issues"
+    "url": "https://github.com/kungvwow/opencode-plugin-otel/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/DEVtheOPS/opencode-plugin-otel.git"
+    "url": "https://github.com/kungvwow/opencode-plugin-otel.git"
   },
   "type": "module",
   "main": "src/index.ts",
