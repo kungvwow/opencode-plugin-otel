@@ -31,6 +31,7 @@ const PLUGIN_VERSION: string = (pkg as { version?: string }).version ?? "unknown
  * and structured log events. All instrumentation is gated on `OPENCODE_ENABLE_TELEMETRY`.
  */
 export const OtelPlugin: Plugin = async ({ project, client }) => {
+  console.log("[otel] plugin loading...")
   const config = loadConfig()
   let minLevel: Level = "info"
 
@@ -40,10 +41,12 @@ export const OtelPlugin: Plugin = async ({ project, client }) => {
   }
 
   if (!config.enabled) {
+    console.log("[otel] telemetry disabled")
     await log("info", "telemetry disabled (set OPENCODE_ENABLE_TELEMETRY to enable)")
     return {}
   }
 
+  console.log("[otel] telemetry enabled, starting up...")
   await log("info", "starting up", {
     version: PLUGIN_VERSION,
     endpoint: config.endpoint,
