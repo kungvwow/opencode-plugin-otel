@@ -17,16 +17,14 @@ import type { OtlpProtocol } from "./config.ts"
 export type DebugLogFn = (level: "debug" | "info" | "warn" | "error", message: string, extra?: Record<string, unknown>) => void
 
 function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, debugLog: DebugLogFn) {
-  let logged = false
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (logs: SdkLogRecord[], resultCallback: (result: { code: number; error?: Error }) => void) => {
+    console.log(`[otel] log export called: ${logs.length} logs`)
     originalExport(logs, (result) => {
       if (result.code === 0) {
-        if (!logged) {
-          console.log("[otel] log export: success ✓")
-          logged = true
-        }
+        console.log("[otel] log export: success ✓")
       } else {
+        console.error("[otel] log export: failed", result.code, result.error?.message)
         debugLog("error", `OTLP log export: failed`, { code: result.code, error: result.error?.message })
       }
       resultCallback(result)
@@ -36,16 +34,14 @@ function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, de
 }
 
 function wrapMetricExporter(exporter: OTLPMetricExporterHttp | OTLPMetricExporterGrpc, debugLog: DebugLogFn) {
-  let logged = false
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (metrics: ResourceMetrics, resultCallback: (result: { code: number; error?: Error }) => void) => {
+    console.log(`[otel] metric export called`)
     originalExport(metrics, (result) => {
       if (result.code === 0) {
-        if (!logged) {
-          console.log("[otel] metric export: success ✓")
-          logged = true
-        }
+        console.log("[otel] metric export: success ✓")
       } else {
+        console.error("[otel] metric export: failed", result.code, result.error?.message)
         debugLog("error", `OTLP metric export: failed`, { code: result.code, error: result.error?.message })
       }
       resultCallback(result)
