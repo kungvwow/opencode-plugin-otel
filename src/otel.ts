@@ -99,15 +99,15 @@ export function setupOtel(
   const MetricExporter = protocol === "http" ? OTLPMetricExporterHttp : OTLPMetricExporterGrpc
   const LogExporter = protocol === "http" ? OTLPLogExporterHttp : OTLPLogExporterGrpc
 
-  const exporterConfig = protocol === "http"
-    ? {
-        url: endpoint,
-        headers: { "Content-Type": "application/json" },
-      }
+  const metricExporterConfig = protocol === "http"
+    ? { url: `${endpoint}/v1/metrics`, headers: { "Content-Type": "application/json" } }
+    : { url: endpoint }
+  const logExporterConfig = protocol === "http"
+    ? { url: `${endpoint}/v1/logs`, headers: { "Content-Type": "application/json" } }
     : { url: endpoint }
 
-  const metricExporter = wrapMetricExporter(new MetricExporter(exporterConfig), debugLog)
-  const logExporter = wrapLogExporter(new LogExporter(exporterConfig), debugLog)
+  const metricExporter = wrapMetricExporter(new MetricExporter(metricExporterConfig), debugLog)
+  const logExporter = wrapLogExporter(new LogExporter(logExporterConfig), debugLog)
 
   const meterProvider = new MeterProvider({
     resource,
