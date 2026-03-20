@@ -19,10 +19,10 @@ export type DebugLogFn = (level: "debug" | "info" | "warn" | "error", message: s
 function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, debugLog: DebugLogFn) {
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (logs: SdkLogRecord[], resultCallback: (result: { code: number; error?: Error }) => void) => {
-    debugLog("debug", `OTLP log export: sending ${logs.length} log(s)`)
+    debugLog("info", `OTLP log export: sending ${logs.length} log(s)`)
     originalExport(logs, (result) => {
       if (result.code === 0) {
-        debugLog("debug", `OTLP log export: success (${logs.length} logs)`)
+        debugLog("info", `OTLP log export: success (${logs.length} logs)`)
       } else {
         debugLog("error", `OTLP log export: failed`, { code: result.code, error: result.error?.message })
       }
@@ -36,10 +36,10 @@ function wrapMetricExporter(exporter: OTLPMetricExporterHttp | OTLPMetricExporte
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (metrics: ResourceMetrics, resultCallback: (result: { code: number; error?: Error }) => void) => {
     const scopeCount = Object.keys(metrics.scopeMetrics ?? {}).length
-    debugLog("debug", `OTLP metric export: sending metrics (${scopeCount} scopes)`)
+    debugLog("info", `OTLP metric export: sending metrics (${scopeCount} scopes)`)
     originalExport(metrics, (result) => {
       if (result.code === 0) {
-        debugLog("debug", `OTLP metric export: success`)
+        debugLog("info", `OTLP metric export: success`)
       } else {
         debugLog("error", `OTLP metric export: failed`, { code: result.code, error: result.error?.message })
       }
