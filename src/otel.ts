@@ -104,8 +104,12 @@ export function setupOtel(
   const MetricExporter = protocol === "http" ? OTLPMetricExporterHttp : OTLPMetricExporterGrpc
   const LogExporter = protocol === "http" ? OTLPLogExporterHttp : OTLPLogExporterGrpc
 
-  const metricExporter = wrapMetricExporter(new MetricExporter({ url: endpoint }), debugLog)
-  const logExporter = wrapLogExporter(new LogExporter({ url: endpoint }), debugLog)
+  const metricsUrl = endpoint + "/v1/metrics"
+  const logsUrl = endpoint + "/v1/logs"
+  console.log(`[otel] creating exporters - metrics: ${metricsUrl}, logs: ${logsUrl}`)
+
+  const metricExporter = wrapMetricExporter(new MetricExporter({ url: metricsUrl }), debugLog)
+  const logExporter = wrapLogExporter(new LogExporter({ url: logsUrl }), debugLog)
 
   const meterProvider = new MeterProvider({
     resource,
