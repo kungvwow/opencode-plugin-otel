@@ -1,9 +1,12 @@
 import { LEVELS, type Level } from "./types.ts"
 
+export type OtlpProtocol = "grpc" | "http"
+
 /** Configuration values resolved from `OPENCODE_*` environment variables. */
 export type PluginConfig = {
   enabled: boolean
   endpoint: string
+  protocol: OtlpProtocol
   metricsInterval: number
   logsInterval: number
   metricPrefix: string
@@ -41,9 +44,14 @@ export function loadConfig(): PluginConfig {
       .filter(Boolean),
   )
 
+  const protocolEnv = process.env["OPENCODE_OTLP_PROTOCOL"]?.toLowerCase()
+  const protocol: OtlpProtocol = protocolEnv === "http" ? "http" : "grpc"
+  const defaultEndpoint = protocol === "grpc" ? "http://localhost:4317" : "http://localhost:4318"
+
   return {
     enabled: !!process.env["OPENCODE_ENABLE_TELEMETRY"],
-    endpoint: process.env["OPENCODE_OTLP_ENDPOINT"] ?? "http://localhost:4317",
+    endpoint: process.env["OPENCODE_OTLP_ENDPOINT"] ?? defaultEndpoint,
+    protocol,
     metricsInterval: parseEnvInt("OPENCODE_OTLP_METRICS_INTERVAL", 60000),
     logsInterval: parseEnvInt("OPENCODE_OTLP_LOGS_INTERVAL", 5000),
     metricPrefix: process.env["OPENCODE_METRIC_PREFIX"] ?? "opencode.",
