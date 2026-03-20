@@ -16,6 +16,22 @@ import type { OtlpProtocol } from "./config.ts"
 
 export type DebugLogFn = (level: "debug" | "info" | "warn" | "error", message: string, extra?: Record<string, unknown>) => void
 
+function parseOtlpHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {}
+  const raw = process.env["OTEL_EXPORTER_OTLP_HEADERS"]
+  if (raw) {
+    for (const pair of raw.split(",")) {
+      const idx = pair.indexOf("=")
+      if (idx > 0) {
+        const key = pair.slice(0, idx).trim()
+        const val = pair.slice(idx + 1).trim()
+        if (key) headers[key] = val
+      }
+    }
+  }
+  return headers
+}
+
 function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, debugLog: DebugLogFn) {
   const originalExport = exporter.export.bind(exporter)
   exporter.export = (logs: SdkLogRecord[], resultCallback: (result: { code: number; error?: Error }) => void) => {
@@ -99,11 +115,12 @@ export function setupOtel(
   const MetricExporter = protocol === "http" ? OTLPMetricExporterHttp : OTLPMetricExporterGrpc
   const LogExporter = protocol === "http" ? OTLPLogExporterHttp : OTLPLogExporterGrpc
 
+  const envHeaders = parseOtlpHeaders()
   const metricExporterConfig = protocol === "http"
-    ? { url: `${endpoint}/v1/metrics`, headers: { "Content-Type": "application/json" } }
+    ? { url: `${endpoint}/v1/metrics`, headers: { ...envHeaders, "Content-Type": "application/json" } }
     : { url: endpoint }
   const logExporterConfig = protocol === "http"
-    ? { url: `${endpoint}/v1/logs`, headers: { "Content-Type": "application/json" } }
+    ? { url: `${endpoint}/v1/logs`, headers: { ...envHeaders, "Content-Type": "application/json" } }
     : { url: endpoint }
 
   const metricExporter = wrapMetricExporter(new MetricExporter(metricExporterConfig), debugLog)
