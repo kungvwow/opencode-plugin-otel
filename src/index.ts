@@ -74,6 +74,10 @@ export const OtelPlugin: Plugin = async ({ project, client }) => {
     config.metricsInterval,
     config.logsInterval,
     PLUGIN_VERSION,
+    async (level, message, extra) => {
+      if (LEVELS[level] < LEVELS[minLevel]) return
+      await client.app.log({ body: { service: "opencode-plugin-otel", level, message, extra } })
+    },
   )
   await log("info", "OTel SDK initialized")
 

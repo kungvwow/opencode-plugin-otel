@@ -9,8 +9,45 @@ import { OTLPMetricExporter as OTLPMetricExporterHttp } from "@opentelemetry/exp
 import { resourceFromAttributes } from "@opentelemetry/resources"
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions"
 import { ATTR_HOST_ARCH } from "@opentelemetry/semantic-conventions/incubating"
+import type { SdkLogRecord } from "@opentelemetry/sdk-logs"
+import type { ResourceMetrics } from "@opentelemetry/sdk-metrics"
 import type { Instruments } from "./types.ts"
 import type { OtlpProtocol } from "./config.ts"
+
+export type DebugLogFn = (level: "debug" | "info" | "warn" | "error", message: string, extra?: Record<string, unknown>) => void
+
+function wrapLogExporter(exporter: OTLPLogExporterHttp | OTLPLogExporterGrpc, debugLog: DebugLogFn) {
+  const originalExport = exporter.export.bind(exporter)
+  exporter.export = (logs: SdkLogRecord[], resultCallback: (result: { code: number; error?: Error }) => void) => {
+    debugLog("debug", `OTLP log export: sending ${logs.length} log(s)`)
+    originalExport(logs, (result) => {
+      if (result.code === 0) {
+        debugLog("debug", `OTLP log export: success (${logs.length} logs)`)
+      } else {
+        debugLog("error", `OTLP log export: failed`, { code: result.code, error: result.error?.message })
+      }
+      resultCallback(result)
+    })
+  }
+  return exporter
+}
+
+function wrapMetricExporter(exporter: OTLPMetricExporterHttp | OTLPMetricExporterGrpc, debugLog: DebugLogFn) {
+  const originalExport = exporter.export.bind(exporter)
+  exporter.export = (metrics: ResourceMetrics, resultCallback: (result: { code: number; error?: Error }) => void) => {
+    const scopeCount = Object.keys(metrics.scopeMetrics ?? {}).length
+    debugLog("debug", `OTLP metric export: sending metrics (${scopeCount} scopes)`)
+    originalExport(metrics, (result) => {
+      if (result.code === 0) {
+        debugLog("debug", `OTLP metric export: success`)
+      } else {
+        debugLog("error", `OTLP metric export: failed`, { code: result.code, error: result.error?.message })
+      }
+      resultCallback(result)
+    })
+  }
+  return exporter
+}
 
 /**
  * Builds an OTel `Resource` seeded with `service.name`, `app.version`, `os.type`, and
@@ -54,17 +91,21 @@ export function setupOtel(
   metricsInterval: number,
   logsInterval: number,
   version: string,
+  debugLog: DebugLogFn,
 ): OtelProviders {
   const resource = buildResource(version)
 
   const MetricExporter = protocol === "http" ? OTLPMetricExporterHttp : OTLPMetricExporterGrpc
   const LogExporter = protocol === "http" ? OTLPLogExporterHttp : OTLPLogExporterGrpc
 
+  const metricExporter = wrapMetricExporter(new MetricExporter({ url: endpoint }), debugLog)
+  const logExporter = wrapLogExporter(new LogExporter({ url: endpoint }), debugLog)
+
   const meterProvider = new MeterProvider({
     resource,
     readers: [
       new PeriodicExportingMetricReader({
-        exporter: new MetricExporter({ url: endpoint }),
+        exporter: metricExporter,
         exportIntervalMillis: metricsInterval,
       }),
     ],
@@ -74,7 +115,7 @@ export function setupOtel(
   const loggerProvider = new LoggerProvider({
     resource,
     processors: [
-      new BatchLogRecordProcessor(new LogExporter({ url: endpoint }), {
+      new BatchLogRecordProcessor(logExporter, {
         scheduledDelayMillis: logsInterval,
       }),
     ],
